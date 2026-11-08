@@ -86,11 +86,11 @@ export default function AccountsPage() {
   }
 
   async function resetPlatformData() {
-    const confirmation = window.prompt(
-      "سيتم حذف جميع بيانات التقدم والجلسات والاختبارات والملاحظات وتغييرات المواعيد. لن تُحذف الحسابات أو المواد أو الجدول الأساسي. اكتب: تصفير المنصة"
+    const confirmed = window.confirm(
+      "هل أنت متأكد من تصفير بيانات المنصة؟\n\nسيتم حذف التقدم والجلسات والاختبارات والملاحظات وتغييرات المواعيد. لن تُحذف الحسابات أو المواد أو الفصول أو الجدول الأساسي."
     );
 
-    if (confirmation !== "تصفير المنصة") return;
+    if (!confirmed) return;
 
     const { error } = await supabase.rpc("admin_reset_all_learning_data");
 
@@ -100,6 +100,7 @@ export default function AccountsPage() {
     }
 
     window.alert("تم تصفير بيانات المتابعة بنجاح.");
+    window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
   }
 
   if (loading) return <main className={styles.loading}><RefreshCw className={styles.spin} /><p>جارٍ تحميل الحسابات...</p></main>;
