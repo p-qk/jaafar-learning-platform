@@ -1,0 +1,4 @@
+project_id = "jaafar-learning-platform"
+
+[functions.admin-users]
+verify_jwt = true

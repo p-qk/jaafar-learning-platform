@@ -1,0 +1,350 @@
+.page {
+  min-height: 100vh;
+  padding: 32px;
+  color: #17231f;
+  background:
+    radial-gradient(circle at top right, #e3f0e8 0, transparent 32%),
+    #f5f7f3;
+}
+
+.header {
+  max-width: 1100px;
+  margin: 0 auto 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.header h1 {
+  margin: 12px 0 6px;
+  font-size: 34px;
+}
+
+.header p {
+  margin: 0;
+  color: #66736e;
+}
+
+.back {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #376c5d;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.account {
+  padding: 10px 16px;
+  border: 1px solid #d7e0db;
+  border-radius: 999px;
+  color: #376c5d;
+  background: white;
+  font-weight: 700;
+}
+
+.noteForm,
+.section {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  border: 1px solid #dde5e0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 40px rgba(40, 70, 59, 0.07);
+}
+
+.formHeading,
+.sectionHeading,
+.sectionHeading > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.formHeading {
+  margin-bottom: 18px;
+}
+
+.formHeading > span {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: white;
+  background: #376c5d;
+}
+
+.formHeading h2,
+.sectionHeading h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.formHeading p,
+.sectionHeading p {
+  margin: 0;
+  color: #76827e;
+  font-size: 14px;
+}
+
+.noteForm textarea {
+  width: 100%;
+  min-height: 130px;
+  padding: 15px;
+  resize: vertical;
+  outline: none;
+  border: 1px solid #d5dfda;
+  border-radius: 14px;
+  color: #17231f;
+  background: #fafcfb;
+  font: inherit;
+  line-height: 1.8;
+  box-sizing: border-box;
+}
+
+.noteForm textarea:focus {
+  border-color: #4f806f;
+  box-shadow: 0 0 0 3px rgba(79, 128, 111, 0.12);
+}
+
+.formFooter {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.formFooter small {
+  color: #85908c;
+}
+
+.formFooter button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  background: #376c5d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formFooter button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sectionHeading {
+  margin-bottom: 18px;
+  justify-content: space-between;
+}
+
+.sectionHeading > div > svg {
+  color: #477565;
+}
+
+.sectionHeading > strong {
+  min-width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #376c5d;
+  background: #eaf2ed;
+}
+
+.notesList {
+  display: grid;
+  gap: 13px;
+}
+
+.noteCard {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid #e0e6e2;
+  border-radius: 17px;
+  background: #fcfdfc;
+}
+
+.sharedIcon,
+.privateIcon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.sharedIcon {
+  color: #376c5d;
+  background: #e7f1eb;
+}
+
+.privateIcon {
+  color: #705a92;
+  background: #eee9f6;
+}
+
+.noteContent {
+  min-width: 0;
+  flex: 1;
+}
+
+.noteHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.noteHeading > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.noteHeading strong {
+  font-size: 15px;
+}
+
+.noteHeading span {
+  color: #83908a;
+  font-size: 12px;
+}
+
+.noteContent > p {
+  margin: 13px 0 0;
+  color: #394640;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.actions button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dce4df;
+  border-radius: 10px;
+  color: #4a6f62;
+  background: white;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: #edf4f0;
+}
+
+.actions .deleteButton {
+  color: #a14e4e;
+}
+
+.actions .deleteButton:hover {
+  background: #faeeee;
+}
+
+.edited {
+  display: inline-block;
+  margin-top: 10px;
+  color: #929b97;
+}
+
+.empty {
+  min-height: 130px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  border: 1px dashed #ccd7d1;
+  border-radius: 16px;
+  color: #7d8984;
+  background: #fafcfb;
+}
+
+.empty p {
+  margin: 0;
+}
+
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: #376c5d;
+  background: #f5f7f3;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 20px 14px;
+  }
+
+  .header {
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .account {
+    padding: 8px 11px;
+    font-size: 13px;
+  }
+
+  .noteForm,
+  .section {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .noteCard {
+    padding: 14px;
+  }
+
+  .noteHeading {
+    flex-direction: column;
+  }
+
+  .actions {
+    align-self: flex-end;
+  }
+
+  .formFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .formFooter button {
+    justify-content: center;
+  }
+}

@@ -71,7 +71,7 @@ export default function SessionsPage() {
     const stored = localStorage.getItem("jaafar-learning-session");
 
     if (!stored) {
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 
@@ -84,7 +84,7 @@ export default function SessionsPage() {
 
     if (sessionError) {
       localStorage.removeItem("jaafar-learning-session");
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 
@@ -93,7 +93,7 @@ export default function SessionsPage() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 

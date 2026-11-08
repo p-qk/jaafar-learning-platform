@@ -265,6 +265,61 @@
   font-weight: 700;
 }
 
+.completionBox {
+  margin-top: 17px;
+  padding: 14px;
+  border: 1px solid #d7e4dc;
+  border-radius: 14px;
+  background: #f1f7f3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.completionBox div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.completionBox strong,
+.completionBox span {
+  font-size: 12px;
+}
+
+.completionBox small {
+  color: #6e7f79;
+  font-size: 9px;
+}
+
+.completionBox button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: #1f5b4e;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.completionActions {
+  display: flex;
+  gap: 7px;
+}
+
+.completionActions button:last-child {
+  color: #9a5147;
+  background: #f4e3df;
+}
+
+.approvedSubject {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #2f7453;
+}
+
 .loading {
   min-height: 100vh;
   display: flex;
@@ -331,5 +386,10 @@
     width: 100%;
     padding-right: 41px;
     justify-content: flex-start;
+  }
+
+  .completionBox {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

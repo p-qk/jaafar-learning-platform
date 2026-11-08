@@ -47,6 +47,14 @@ type Progress = {
   status: "studying" | "ready_for_test" | "passed" | "needs_review";
 };
 
+type CompletionRequest = {
+  id: string;
+  student_id: string;
+  subject_id: string;
+  status: "pending" | "approved" | "rejected";
+  requested_at: string;
+};
+
 const statusLabels = {
   studying: "قيد الدراسة",
   ready_for_test: "جاهز للاختبار",
@@ -60,6 +68,7 @@ export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [progress, setProgress] = useState<Progress[]>([]);
+  const [completionRequests, setCompletionRequests] = useState<CompletionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -67,7 +76,7 @@ export default function SubjectsPage() {
     const stored = localStorage.getItem("jaafar-learning-session");
 
     if (!stored) {
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 
@@ -80,7 +89,7 @@ export default function SubjectsPage() {
 
     if (sessionError) {
       localStorage.removeItem("jaafar-learning-session");
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 
@@ -89,7 +98,7 @@ export default function SubjectsPage() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      window.location.href = "/";
+      window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
       return;
     }
 
@@ -140,6 +149,7 @@ export default function SubjectsPage() {
       { data: subjectsData },
       { data: chaptersData },
       { data: progressData },
+      { data: requestsData },
     ] = await Promise.all([
       subjectsQuery,
       chaptersQuery,
@@ -147,11 +157,17 @@ export default function SubjectsPage() {
         .from("chapter_progress")
         .select("*")
         .eq("student_id", student.id),
+      supabase
+        .from("subject_completion_requests")
+        .select("id, student_id, subject_id, status, requested_at")
+        .eq("student_id", student.id)
+        .order("requested_at", { ascending: false }),
     ]);
 
     setSubjects(subjectsData ?? []);
     setChapters(chaptersData ?? []);
     setProgress(progressData ?? []);
+    setCompletionRequests(requestsData ?? []);
     setLoading(false);
   }
 
@@ -175,6 +191,11 @@ export default function SubjectsPage() {
         { event: "*", schema: "public", table: "chapter_progress" },
         initialize
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "subject_completion_requests" },
+        initialize
+      )
       .subscribe();
 
     return () => {
@@ -186,6 +207,44 @@ export default function SubjectsPage() {
     () => new Map(progress.map((item) => [item.chapter_id, item])),
     [progress]
   );
+
+  const requestBySubject = useMemo(() => {
+    const map = new Map<string, CompletionRequest>();
+    completionRequests.forEach((request) => {
+      if (!map.has(request.subject_id)) map.set(request.subject_id, request);
+    });
+    return map;
+  }, [completionRequests]);
+
+  async function requestSubjectCompletion(subject: Subject) {
+    if (!profile || profile.role !== "student" || !studentId) return;
+
+    const { error } = await supabase
+      .from("subject_completion_requests")
+      .insert({ student_id: studentId, subject_id: subject.id, status: "pending" });
+
+    if (error) window.alert(error.message);
+    else await initialize();
+  }
+
+  async function decideCompletion(request: CompletionRequest, approved: boolean) {
+    if (!profile || profile.role === "student") return;
+    const note = window.prompt("ملاحظة القرار — اختيارية:");
+    if (note === null) return;
+
+    const { error } = await supabase
+      .from("subject_completion_requests")
+      .update({
+        status: approved ? "approved" : "rejected",
+        decided_by: profile.id,
+        decided_at: new Date().toISOString(),
+        decision_note: note.trim() || null,
+      })
+      .eq("id", request.id);
+
+    if (error) window.alert(error.message);
+    else await initialize();
+  }
 
   async function addSubject() {
     const name = window.prompt("اكتب اسم المادة الجديدة:");
@@ -369,6 +428,10 @@ export default function SubjectsPage() {
             ? Math.round((passedCount / subjectChapters.length) * 100)
             : 0;
 
+          const completionRequest = requestBySubject.get(subject.id);
+          const allChaptersPassed =
+            subjectChapters.length > 0 && passedCount === subjectChapters.length;
+
           return (
             <article
               className={`${styles.card} ${
@@ -495,6 +558,39 @@ export default function SubjectsPage() {
                   </button>
                 )}
               </div>
+
+              {allChaptersPassed && (
+                <div className={styles.completionBox}>
+                  {completionRequest?.status === "approved" ? (
+                    <strong className={styles.approvedSubject}>
+                      <Check size={18} /> تم إنهاء المادة واعتمادها
+                    </strong>
+                  ) : completionRequest?.status === "pending" ? (
+                    <>
+                      <div>
+                        <strong>طلب إنهاء المادة بانتظار قرار العائلة</strong>
+                        <small>أكمل جعفر جميع الفصول وأرسل طلب الاختبار النهائي.</small>
+                      </div>
+                      {profile?.role !== "student" && (
+                        <div className={styles.completionActions}>
+                          <button onClick={() => decideCompletion(completionRequest, true)}>اعتماد إنهاء المادة</button>
+                          <button onClick={() => decideCompletion(completionRequest, false)}>إعادة للمراجعة</button>
+                        </div>
+                      )}
+                    </>
+                  ) : profile?.role === "student" ? (
+                    <>
+                      <div>
+                        <strong>أكملت جميع فصول المادة</strong>
+                        <small>أرسل طلبًا للعائلة لإجراء الاختبار النهائي واعتماد المادة.</small>
+                      </div>
+                      <button onClick={() => requestSubjectCompletion(subject)}>طلب اختبار إنهاء المادة</button>
+                    </>
+                  ) : (
+                    <span>أكمل جعفر جميع فصول هذه المادة ولم يرسل طلب الإنهاء بعد.</span>
+                  )}
+                </div>
+              )}
             </article>
           );
         })}
