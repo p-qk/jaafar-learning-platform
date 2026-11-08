@@ -137,7 +137,22 @@ function Dashboard({ profile, onLogout }: { profile: Profile; onLogout: () => vo
     <aside className={menuOpen ? "sidebar sidebar-open" : "sidebar"}>
       <div className="sidebar-brand"><BrandMark /></div>
       <button className="sidebar-close" onClick={() => setMenuOpen(false)} aria-label="إغلاق القائمة"><X /></button>
-      <nav>{navItems.map(({ label, icon: Icon, active }) => <button key={label} className={active ? "nav-item nav-active" : "nav-item"}><Icon size={20} /> {label}</button>)}</nav>
+      <nav>
+  {navItems.map(({ label, icon: Icon, active }) => (
+    <button
+      key={label}
+      className={active ? "nav-item nav-active" : "nav-item"}
+      onClick={() => {
+        if (label === "المواد والفصول") {
+          window.location.href = "/subjects";
+        }
+      }}
+    >
+      <Icon size={20} />
+      {label}
+    </button>
+  ))}
+</nav>
       <div className="sidebar-user"><span className="avatar">{profile.full_name.charAt(0)}</span><div><strong>{profile.full_name}</strong><small>{roleLabels[profile.role]}</small></div><button onClick={onLogout} aria-label="تسجيل الخروج"><LogOut size={18} /></button></div>
     </aside>
     {menuOpen && <button className="menu-backdrop" onClick={() => setMenuOpen(false)} aria-label="إغلاق القائمة" />}
