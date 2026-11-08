@@ -143,10 +143,14 @@ function Dashboard({ profile, onLogout }: { profile: Profile; onLogout: () => vo
       key={label}
       className={active ? "nav-item nav-active" : "nav-item"}
       onClick={() => {
-        if (label === "المواد والفصول") {
-          window.location.href = "/subjects";
-        }
-      }}
+  if (label === "المواد والفصول") {
+    window.location.href = "/subjects";
+  }
+
+  if (label === "جلسات الدراسة") {
+    window.location.href = "/sessions";
+  }
+}}
     >
       <Icon size={20} />
       {label}
