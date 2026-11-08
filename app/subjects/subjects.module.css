@@ -251,6 +251,15 @@
   font-weight: 700;
 }
 
+.chapterActions .resetButton {
+  padding: 0 9px;
+  color: #a25448;
+  background: #f7e7e3;
+  border-color: #edcec8;
+  font-size: 9px;
+  font-weight: 700;
+}
+
 .addChapter {
   min-height: 43px;
   border: 1px dashed #aebcb6;

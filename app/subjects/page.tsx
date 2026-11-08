@@ -12,6 +12,7 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  RotateCcw,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import styles from "./subjects.module.css";
@@ -377,6 +378,23 @@ export default function SubjectsPage() {
     if (error) window.alert(error.message);
   }
 
+  async function resetChapterProgress(chapter: Chapter) {
+    if (profile?.role !== "admin") return;
+
+    if (!window.confirm(`تصفير تقدم فصل «${chapter.title}» وإعادته إلى غير منجز؟`)) return;
+
+    const { error } = await supabase.rpc("admin_reset_chapter_progress", {
+      target_chapter_id: chapter.id,
+    });
+
+    if (error) {
+      window.alert(error.message);
+      return;
+    }
+
+    await initialize();
+  }
+
   if (loading) {
     return (
       <main className={styles.loading}>
@@ -531,6 +549,16 @@ export default function SubjectsPage() {
 
                         {profile?.role === "admin" && (
                           <>
+                            {chapterProgress && (
+                              <button
+                                className={styles.resetButton}
+                                onClick={() => resetChapterProgress(chapter)}
+                                title="تصفير تقدم الفصل"
+                              >
+                                <RotateCcw size={15} />
+                                تصفير
+                              </button>
+                            )}
                             <button onClick={() => editChapter(chapter)}>
                               <Pencil size={15} />
                             </button>

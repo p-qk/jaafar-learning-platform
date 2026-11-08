@@ -299,6 +299,22 @@
   background: #ecefeb;
 }
 
+.deleteButton {
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid #edcbc5;
+  border-radius: 9px;
+  color: #a3483e;
+  background: #faece9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+}
+
 .passedIcon,
 .failedIcon {
   width: 43px;

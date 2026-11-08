@@ -159,6 +159,21 @@
   cursor: wait;
 }
 
+.adminDeleteButton {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #edcbc5;
+  border-radius: 10px;
+  color: #a3483e;
+  background: #faece9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
 .guardianMessage {
   margin: 32px auto 5px;
   max-width: 440px;

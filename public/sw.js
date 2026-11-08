@@ -1,6 +1,13 @@
-const CACHE = "jaafar-learning-v2";
+const CACHE = "jaafar-learning-v3";
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, "");
-const APP_SHELL = [`${BASE}/`, `${BASE}/manifest.webmanifest`, `${BASE}/icon.svg`];
+const APP_SHELL = [
+  `${BASE}/`,
+  `${BASE}/manifest.webmanifest`,
+  `${BASE}/icon.svg`,
+  `${BASE}/icon-192.png`,
+  `${BASE}/icon-512.png`,
+  `${BASE}/apple-touch-icon.png`,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL)));

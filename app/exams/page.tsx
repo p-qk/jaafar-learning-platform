@@ -10,6 +10,7 @@ import {
   Clock3,
   Plus,
   RefreshCw,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
@@ -360,6 +361,23 @@ export default function ExamsPage() {
     await initialize();
   }
 
+  async function deleteExam(exam: Exam) {
+    if (profile?.role !== "admin") return;
+
+    if (!window.confirm(`حذف اختبار ${exam.title} نهائيًا؟`)) return;
+
+    const { error } = await supabase.rpc("admin_delete_exam", {
+      target_exam_id: exam.id,
+    });
+
+    if (error) {
+      window.alert(error.message);
+      return;
+    }
+
+    await initialize();
+  }
+
   if (loading) {
     return (
       <main className={styles.loading}>
@@ -567,6 +585,16 @@ export default function ExamsPage() {
                     >
                       إلغاء
                     </button>
+
+                    {profile?.role === "admin" && (
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => deleteExam(exam)}
+                      >
+                        <Trash2 size={15} />
+                        حذف نهائي
+                      </button>
+                    )}
                   </div>
                 )}
               </article>
@@ -632,6 +660,16 @@ export default function ExamsPage() {
                     {exam.passed ? "ناجح" : "يحتاج مراجعة"}
                   </small>
                 </div>
+
+                {profile?.role === "admin" && (
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => deleteExam(exam)}
+                  >
+                    <Trash2 size={15} />
+                    حذف
+                  </button>
+                )}
               </article>
             ))
           )}

@@ -10,6 +10,7 @@ import {
   Play,
   RefreshCw,
   Square,
+  Trash2,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import styles from "./sessions.module.css";
@@ -278,6 +279,23 @@ export default function SessionsPage() {
     await initialize();
   }
 
+  async function deleteSession(session: StudySession) {
+    if (profile?.role !== "admin") return;
+
+    if (!window.confirm("حذف هذه الجلسة نهائيًا وتصحيح مجموع وقت الدراسة؟")) return;
+
+    const { error } = await supabase.rpc("admin_delete_study_session", {
+      target_session_id: session.id,
+    });
+
+    if (error) {
+      window.alert(error.message);
+      return;
+    }
+
+    await initialize();
+  }
+
   if (loading) {
     return (
       <main className={styles.loading}>
@@ -351,9 +369,20 @@ export default function SessionsPage() {
             )}
 
             {profile?.role !== "student" && (
-              <p className={styles.guardianMessage}>
-                جعفر يدرس الآن، وسيظهر وقت الجلسة هنا مباشرة.
-              </p>
+              <>
+                <p className={styles.guardianMessage}>
+                  جعفر يدرس الآن، وسيظهر وقت الجلسة هنا مباشرة.
+                </p>
+                {profile?.role === "admin" && (
+                  <button
+                    className={styles.adminDeleteButton}
+                    onClick={() => deleteSession(activeSession)}
+                  >
+                    <Trash2 size={16} />
+                    حذف الجلسة المفتوحة بالخطأ
+                  </button>
+                )}
+              </>
             )}
           </>
         ) : profile?.role === "student" ? (
@@ -457,6 +486,16 @@ export default function SessionsPage() {
                     }).format(new Date(session.started_at))}
                   </small>
                 </div>
+
+                {profile?.role === "admin" && (
+                  <button
+                    className={styles.adminDeleteButton}
+                    onClick={() => deleteSession(session)}
+                  >
+                    <Trash2 size={15} />
+                    حذف
+                  </button>
+                )}
               </article>
             ))
           )}
