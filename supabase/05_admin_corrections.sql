@@ -78,12 +78,12 @@ begin
     raise exception 'هذه العملية متاحة للمدير فقط';
   end if;
 
-  delete from public.subject_completion_requests;
-  delete from public.exams;
-  delete from public.study_sessions;
-  delete from public.schedule_changes;
-  delete from public.notes;
-  delete from public.chapter_progress;
+  delete from public.subject_completion_requests where id is not null;
+  delete from public.exams where id is not null;
+  delete from public.study_sessions where id is not null;
+  delete from public.schedule_changes where id is not null;
+  delete from public.notes where id is not null;
+  delete from public.chapter_progress where id is not null;
 end;
 $$;
 
