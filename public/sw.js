@@ -1,4 +1,4 @@
-const CACHE = "jaafar-learning-v3";
+const CACHE = "jaafar-learning-v4";
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, "");
 const APP_SHELL = [
   `${BASE}/`,

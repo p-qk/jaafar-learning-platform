@@ -7,6 +7,7 @@ import {
   BookOpen,
   CheckCircle2,
   Clock3,
+  Pause,
   Play,
   RefreshCw,
   Square,
@@ -44,6 +45,10 @@ type StudySession = {
   ended_at: string | null;
   duration_seconds: number;
   student_note: string | null;
+  paused_at: string | null;
+  pause_reason: string | null;
+  paused_by: string | null;
+  total_paused_seconds: number;
 };
 
 function formatDuration(totalSeconds: number) {
@@ -197,8 +202,12 @@ export default function SessionsPage() {
     ? Math.max(
         0,
         Math.floor(
-          (now - new Date(activeSession.started_at).getTime()) / 1000
-        )
+          ((activeSession.paused_at
+            ? new Date(activeSession.paused_at).getTime()
+            : now) -
+            new Date(activeSession.started_at).getTime()) /
+            1000
+        ) - (activeSession.total_paused_seconds ?? 0)
       )
     : 0;
 
@@ -243,32 +252,61 @@ export default function SessionsPage() {
   async function finishSession() {
     if (!profile || !activeSession) return;
 
-    const note = window.prompt(
-      "اكتب ملاحظة قصيرة عن الجلسة، أو اتركها فارغة:"
-    );
+    const note = profile.role === "student"
+      ? window.prompt("اكتب ملاحظة قصيرة عن الجلسة، أو اتركها فارغة:")
+      : null;
+
+    if (!window.confirm("هل تريد إنهاء الجلسة الآن؟")) return;
 
     setWorking(true);
 
-    const endedAt = new Date();
-    const duration = Math.max(
-      1,
-      Math.floor(
-        (endedAt.getTime() -
-          new Date(activeSession.started_at).getTime()) /
-          1000
-      )
-    );
+    const { error } = await supabase.rpc("finish_study_session", {
+      target_session_id: activeSession.id,
+      session_note_text: note?.trim() || null,
+    });
 
-    const { error } = await supabase
-      .from("study_sessions")
-      .update({
-        status: "completed",
-        ended_at: endedAt.toISOString(),
-        duration_seconds: duration,
-        student_note: note?.trim() || null,
-      })
-      .eq("id", activeSession.id);
+    setWorking(false);
 
+    if (error) {
+      window.alert(error.message);
+      return;
+    }
+
+    await initialize();
+  }
+
+  async function pauseSession() {
+    if (!profile || !activeSession) return;
+
+    const reason = window.prompt("ما سبب التوقف المؤقت؟ مثال: وقت الطعام");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      window.alert("اكتب سبب التوقف المؤقت أولًا.");
+      return;
+    }
+
+    setWorking(true);
+    const { error } = await supabase.rpc("pause_study_session", {
+      target_session_id: activeSession.id,
+      pause_reason_text: reason.trim(),
+    });
+    setWorking(false);
+
+    if (error) {
+      window.alert(error.message);
+      return;
+    }
+
+    await initialize();
+  }
+
+  async function resumeSession() {
+    if (!profile || !activeSession) return;
+
+    setWorking(true);
+    const { error } = await supabase.rpc("resume_study_session", {
+      target_session_id: activeSession.id,
+    });
     setWorking(false);
 
     if (error) {
@@ -330,7 +368,11 @@ export default function SessionsPage() {
 
           <div>
             <small>
-              {activeSession ? "جلسة جارية الآن" : "لا توجد جلسة جارية"}
+              {activeSession?.paused_at
+                ? "الجلسة متوقفة مؤقتًا"
+                : activeSession
+                  ? "جلسة جارية الآن"
+                  : "لا توجد جلسة جارية"}
             </small>
             <h2>
               {activeSession
@@ -340,8 +382,8 @@ export default function SessionsPage() {
           </div>
 
           {activeSession && (
-            <span className={styles.liveBadge}>
-              مباشر
+            <span className={activeSession.paused_at ? styles.pausedBadge : styles.liveBadge}>
+              {activeSession.paused_at ? "متوقفة" : "مباشر"}
             </span>
           )}
         </div>
@@ -357,31 +399,66 @@ export default function SessionsPage() {
               {chapterById.get(activeSession.chapter_id ?? "")?.title}
             </p>
 
-            {profile?.role === "student" && (
-              <button
-                className={styles.stopButton}
-                onClick={finishSession}
-                disabled={working}
-              >
-                <Square size={17} fill="currentColor" />
-                إنهاء الجلسة
-              </button>
+            {activeSession.paused_at && (
+              <div className={styles.pauseNotice}>
+                <strong>سبب التوقف:</strong>
+                <span>{activeSession.pause_reason}</span>
+              </div>
             )}
 
-            {profile?.role !== "student" && (
-              <>
-                <p className={styles.guardianMessage}>
-                  جعفر يدرس الآن، وسيظهر وقت الجلسة هنا مباشرة.
-                </p>
-                {profile?.role === "admin" && (
+            {(profile?.role === "student" || profile?.role === "admin") && (
+              <div className={styles.sessionControls}>
+                {activeSession.paused_at ? (
                   <button
-                    className={styles.adminDeleteButton}
-                    onClick={() => deleteSession(activeSession)}
+                    className={styles.resumeButton}
+                    onClick={resumeSession}
+                    disabled={working}
                   >
-                    <Trash2 size={16} />
-                    حذف الجلسة المفتوحة بالخطأ
+                    <Play size={17} fill="currentColor" />
+                    استئناف الجلسة
+                  </button>
+                ) : (
+                  <button
+                    className={styles.pauseButton}
+                    onClick={pauseSession}
+                    disabled={working}
+                  >
+                    <Pause size={17} fill="currentColor" />
+                    إيقاف مؤقت
                   </button>
                 )}
+
+                <button
+                  className={styles.stopButton}
+                  onClick={finishSession}
+                  disabled={working}
+                >
+                  <Square size={17} fill="currentColor" />
+                  إنهاء الجلسة
+                </button>
+              </div>
+            )}
+
+            {profile?.role === "guardian" && (
+              <p className={styles.guardianMessage}>
+                {activeSession.paused_at
+                  ? "الجلسة متوقفة مؤقتًا، وسيظهر الاستئناف هنا فورًا."
+                  : "جعفر يدرس الآن، وسيظهر وقت الجلسة هنا مباشرة."}
+              </p>
+            )}
+
+            {profile?.role === "admin" && (
+              <>
+                <p className={styles.guardianMessage}>
+                  يمكنك كمدير إيقاف الجلسة مؤقتًا أو إنهاؤها عند الحاجة.
+                </p>
+                <button
+                  className={styles.adminDeleteButton}
+                  onClick={() => deleteSession(activeSession)}
+                >
+                  <Trash2 size={16} />
+                  حذف الجلسة المفتوحة بالخطأ
+                </button>
               </>
             )}
           </>
